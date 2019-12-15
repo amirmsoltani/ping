@@ -1,0 +1,2 @@
+CHATS = "@testforping"
+Bot = "soltanikbot"
