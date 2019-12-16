@@ -2,6 +2,7 @@ from bot.models import Message, Category
 from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from .config import CHATS, Bot
 from .Connect import create_connection
+from .convert import text_to_keyboard
 
 
 def release(bot, update, id):
@@ -56,9 +57,11 @@ def callback(bot, update, member):
 
         bot.deleteMessage(member.tel, update.message.message_id)
         message = Message.objects.get_or_create(event="dc_connect", defaults={"context": "dc_connect empty"})[0]
-        bot.sendMessage(member.tel, message.context, reply_markup=ReplyKeyboardMarkup(message.keyboard or []))
+        bot.sendMessage(member.tel, message.context,
+                        reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard)))
         if connect.status == 1:
-            bot.sendMessage(member2.tel, message.context, reply_markup=ReplyKeyboardMarkup(message.keyboard or []))
+            bot.sendMessage(member2.tel, message.context,
+                            reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard)))
             member2.status = 15
             member2.save()
         connect.status = 0
@@ -81,7 +84,7 @@ def callback(bot, update, member):
             member.save()
             bot.deleteMessage(member.tel, update.message.message_id)
             m = Message.objects.get_or_create(event="register", defaults={"context": "register empty"})[0]
-            bot.sendMessage(member.tel, m.context, reply_markup=ReplyKeyboardMarkup(m.keyboard or []))
+            bot.sendMessage(member.tel, m.context, reply_markup=ReplyKeyboardMarkup(text_to_keyboard(m.keyboard)))
             return
         category = Category.objects.get(id=int(split_data[1]))
         if member.category.filter(id=int(split_data[1])).count() > 0:
@@ -106,5 +109,6 @@ def callback(bot, update, member):
         member.send = split_data[1]
         member.save()
         message = Message.objects.get_or_create(event="sendto", defaults={"context": "sendto request empty"})[0]
-        bot.sendMessage(member.tel, text=message.context, reply_markup=ReplyKeyboardMarkup(message.keyboard or []))
+        bot.sendMessage(member.tel, text=message.context,
+                        reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard)))
         return

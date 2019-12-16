@@ -2,7 +2,7 @@ from bot.models import Member, Message, Category
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from math import ceil
 from .SendAll import send_all
-
+from .convert import text_to_keyboard
 
 def send_pink(bot, update, member):
     admin = Member.objects.filter(type=5).first()
@@ -18,7 +18,7 @@ def send_pink(bot, update, member):
         ]
     ]
     message = Message.objects.get_or_create(event="send_pink_suc", defaults={"context": "send_pink_suc empty"})[0]
-    bot.sendMessage(member.tel, message.context, reply_markup=ReplyKeyboardMarkup(message.keyboard or []))
+    bot.sendMessage(member.tel, message.context, reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard)))
     member.status = 15
     member.save()
     if update.message.text:
@@ -74,4 +74,4 @@ def send_for_all(bot, update, member):
     message = \
         Message.objects.get_or_create(event="message_admin_send", defaults={"context": "message_admin_send empty"})[
             0]
-    bot.sendMessage(member.tel, message.context, reply_markup=ReplyKeyboardMarkup(message.keyboard or []))
+    bot.sendMessage(member.tel, message.context, reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard)))

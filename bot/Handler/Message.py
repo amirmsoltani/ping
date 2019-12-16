@@ -3,7 +3,7 @@ from .MemberData import organizer, change_status
 from .config import CHATS
 from .Connect import send_connection, create_connection
 from .Admin import send_pink, send_for_all
-
+from .convert import text_to_keyboard
 
 def message_handler(bot, update, member, *args):
     status = member.status
@@ -15,7 +15,7 @@ def message_handler(bot, update, member, *args):
         return
     elif update.message.text == "🏠خانه🏠":
         text = Message.objects.get(event="help")
-        bot.sendMessage(member.tel, text.context, reply_markup=ReplyKeyboardMarkup(text.keyboard or []))
+        bot.sendMessage(member.tel, text.context, reply_markup=ReplyKeyboardMarkup(text_to_keyboard(text.keyboard)))
         member.status = 15
         member.save()
         return

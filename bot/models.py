@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 
 
 class Member(models.Model):
@@ -41,7 +40,7 @@ class Connection(models.Model):
 
 class MemberLog(models.Model):
     key = models.CharField(max_length=150)
-    value = JSONField()
+    value = models.TextField()
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     time = models.DateTimeField(auto_now=True)
 
@@ -52,7 +51,7 @@ class MemberLog(models.Model):
 class Message(models.Model):
     event = models.CharField(max_length=100)
     context = models.TextField()
-    keyboard = JSONField(null=True, blank=True)
+    keyboard = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return str(self.event)
