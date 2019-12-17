@@ -2,6 +2,7 @@ from bot.models import Message, Category
 from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from math import ceil
 from .convert import text_to_keyboard
+
 valid_data = {0: "phone_not_valid", 1: "name_not_valid",
               2: "last_name_not_valid", 3: "gender_not_valid",
               4: "category",
@@ -40,7 +41,8 @@ def not_valid_status(bot, update, member):
     event = valid_status.get(status) or "status_not_set"
     message = Message.objects.get_or_create(event=event, defaults={"context": "%s empty" % event})[0]
     keyboard = text_to_keyboard(message.keyboard)
-    bot.sendMessage(chat_id, text=message.context, reply_markup=ReplyKeyboardMarkup(keyboard))
+    bot.sendMessage(chat_id, text=message.context,
+                    reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True))
 
 
 def not_valid_data(bot, update, member):
@@ -53,4 +55,5 @@ def not_valid_data(bot, update, member):
 
 def not_valid_user(bot, update, member):
     message = Message.objects.get_or_create(event="user_add", defaults={"context": "user_add empty"})[0]
-    bot.sendMessage(member.tel, message.context, reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard)))
+    bot.sendMessage(member.tel, message.context,
+                    reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard), resize_keyboard=True))

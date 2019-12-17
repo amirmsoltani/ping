@@ -4,6 +4,8 @@ from .config import CHATS
 from .Connect import send_connection, create_connection
 from .Admin import send_pink, send_for_all
 from .convert import text_to_keyboard
+from .Connect import send_connection
+
 
 def message_handler(bot, update, member, *args):
     status = member.status
@@ -15,7 +17,8 @@ def message_handler(bot, update, member, *args):
         return
     elif update.message.text == "🏠خانه🏠":
         text = Message.objects.get(event="help")
-        bot.sendMessage(member.tel, text.context, reply_markup=ReplyKeyboardMarkup(text_to_keyboard(text.keyboard)))
+        bot.sendMessage(member.tel, text.context,
+                        reply_markup=ReplyKeyboardMarkup(text_to_keyboard(text.keyboard), resize_keyboard=True))
         member.status = 15
         member.save()
         return
@@ -45,6 +48,8 @@ def photo_handler(bot, update, member):
         send_pink(bot, update, member)
     elif member.status == 17:
         send_for_all(bot, update, member)
+    elif member.status == 19:
+        send_connection(bot, update, member)
     else:
         not_valid_data(bot, update, member)
         return

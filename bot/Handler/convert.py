@@ -8,7 +8,7 @@ def dict_to_button(array):
 
 
 def text_to_keyboard(text):
-    if text is None:
+    if text =="" or text is None:
         return []
     array = loads(text)
     return array

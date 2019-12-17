@@ -3,6 +3,8 @@ from telegram import InlineKeyboardMarkup
 from .convert import dict_to_button
 from telegram import ReplyKeyboardMarkup
 from .convert import text_to_keyboard
+from .config import CHATS, Bot
+from .SendAll import send_all
 
 
 def create_connection(member1, member2username, bot, status=1):
@@ -18,9 +20,9 @@ def create_connection(member1, member2username, bot, status=1):
             member2.status = 21
             member2.save()
             bot.sendMessage(member2.tel, message.context,
-                            reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard)))
+                            reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard), resize_keyboard=True))
         bot.sendMessage(member1.tel, message.context,
-                        reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard)))
+                        reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard), resize_keyboard=True))
 
         return True
     except Member.DoesNotExist:
@@ -34,8 +36,19 @@ def send_connection(bot, update, member):
     if update.message.text == "❌قطع اتصال❌":
         message = Message.objects.get_or_create(event="disconnect", defaults={"context": "disconnect empty"})[0]
         bot.sendMessage(member.tel, message.context,
-                        reply_markup=InlineKeyboardMarkup(dict_to_button(text_to_keyboard(message.keyboard))))
+                        reply_markup=InlineKeyboardMarkup(dict_to_button(text_to_keyboard(message.keyboard)),
+                                                          resize_keyboard=True))
         return
+    link = '<a href="{}">{}</a>'.format("https://t.me/%s?start=%s" % (Bot, member.username),
+                                        member.username + " _ " + member.last_name)
+    text_add = "\n\n🎈کاربر:{}\n\n{}".format(link, CHATS)
+    if update.message.text:
+        update.message.text += text_add
+    elif update.message.caption:
+        if len(update.message.caption + text_add) > 1024:
+            bot.sendMessage(member.tel, "تعداد کارکتر ارسالی شما باید کمتر از {} باشد".format(1024 - len(text_add)))
+            return
+        update.message.caption = (update.message.caption or "") + text_add
     if member.status == 20:
         connection = member.connector.filter(status__in=[1, 2]).first()
         a = ""
@@ -44,10 +57,7 @@ def send_connection(bot, update, member):
             member.status = 15
             member.save()
             connection.save()
-            a = "\n پاسخ ادمین"
-            keyboard = text_to_keyboard(Message.objects.get(event="help").keyboard)
-            bot.sendMessage(member.tel, "پاسخ ارسال شد", reply_markup=ReplyKeyboardMarkup(keyboard))
-        bot.sendMessage(connection.connect2.tel, update.message.text + a)
+        send_all(bot, update, users=[connection.connect2.tel])
     elif member.status == 21:
         connection = member.link.filter(status=1).first()
-        bot.sendMessage(connection.connect1.tel, update.message.text)
+        send_all(bot, update, users=[connection.connect1.tel])

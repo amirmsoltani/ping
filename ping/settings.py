@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-#from .botsetting import DJANGO_TELEGRAMBOT
+
+# from .botsetting import DJANGO_TELEGRAMBOT
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,11 +24,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '!@$xnkj+c&gzm*!9&7d_&p)g6r@wfg76jycag=9yvnno++&e(^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "192.168.2.5",
-    "test.ir",
+    "wirgoolads.ir",
 ]
 
 # Application definition
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,8 +81,8 @@ WSGI_APPLICATION = 'ping.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'pink',
-        'USER': 'soltan',
+        'NAME': 'wirgoola_pink',
+        'USER': 'wirgoola_amir',
         'PASSWORD': 'Amir_1378625',
         'HOST': 'localhost',
         'PORT': '',
@@ -118,20 +120,22 @@ USE_L10N = True
 
 USE_TZ = True
 
+APPEND_SLASH = False
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+STATIC_ROOT = '/home2/wirgoola/ping/public'
 STATIC_URL = '/static/'
-
-
 
 DJANGO_TELEGRAMBOT = {
 
     'MODE': 'POLLING',
+    #'WEBHOOK_SITE': 'https://wirgoolads.ir',
+    #'WEBHOOK_PREFIX': '/telegrambot1',
     'BOTS': [
         {
             'TOKEN': '625001656:AAHosIqO7feF8M7sFBQzktv0_GiuNXF5jI0',
         },
-    ],
+    ]
 
 }

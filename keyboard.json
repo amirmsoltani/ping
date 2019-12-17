@@ -1,9 +1,39 @@
 [
   [
-    "\uD83D\uDC68\u200D❤️\u200D\uD83D\uDC8B\u200D\uD83D\uDC68ارسال پینک\uD83C\uDFD6",
-    "\uD83D\uDC59اتصال به پینکر\uD83D\uDC92"
-  ],
+    [
+      "\uD83C\uDFE0خانه\uD83C\uDFE0⛔"
+    ]
+  ]
+,
   [
-    "راهنما⛔️"
+    [
+      "\uD83D\uDC68\u200D❤️\u200D\uD83D\uDC8B\u200D\uD83D\uDC68ارسال پینک\uD83C\uDFD6",
+      "\uD83D\uDC59اتصال به پینکر\uD83D\uDC92"
+    ],
+    [
+      "راهنما⛔️"
+    ]
+  ]
+  ,
+  [
+    [
+      {
+        "text": "ارسال شماره",
+        "request_contact": true
+      }
+    ]
+  ]
+  ,
+  [
+    [
+      "❌قطع اتصال❌"
+    ]
+  ]
+  ,
+  [
+    [
+      {"text": "بله","callback_data": "yes_dc"},
+      {"text": "خیر","callback_data": "no_dc"}
+    ]
   ]
 ]

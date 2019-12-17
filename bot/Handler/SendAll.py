@@ -1,4 +1,4 @@
-def send_all(bot, update, member, users=[]):
+def send_all(bot, update, users=[]):
     sender = bot.sendMessage
     keys = {}
     if update.message.text:
@@ -25,4 +25,4 @@ def send_all(bot, update, member, users=[]):
         keys['audio'] = update.message.audio.file_id
         keys['caption'] = update.message.caption or ""
     for user in users:
-        sender(user, **keys)
+        sender(user, parse_mode="HTML", **keys)
