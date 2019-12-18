@@ -1,26 +1,21 @@
-from bot.models import Message, Member, Connection
-from telegram import InlineKeyboardMarkup
+from bot.models import Message, Member
 from .convert import dict_to_button
-from telegram import ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from .convert import text_to_keyboard
 from .config import CHATS, Bot
 from .SendAll import send_all
 
 
-def create_connection(member1, member2username, bot, status=1):
+def create_connection(member1, member2username, bot, answer=None):
     try:
         member2 = Member.objects.get(username=member2username)
-        print(member2.name)
-        Connection.objects.update_or_create(connect1=member1, connect2=member2, defaults={"status": status})
+        member1.connect = member2
         message = Message.objects.get_or_create(event="connect_successful",
                                                 defaults={"context": "connect_successful empty"})[0]
         member1.status = 20
+        if answer is not None:
+            member1.answer = int(answer)
         member1.save()
-        if status == 1:
-            member2.status = 21
-            member2.save()
-            bot.sendMessage(member2.tel, message.context,
-                            reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard), resize_keyboard=True))
         bot.sendMessage(member1.tel, message.context,
                         reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard), resize_keyboard=True))
 
@@ -36,28 +31,27 @@ def send_connection(bot, update, member):
     if update.message.text == "❌قطع اتصال❌":
         message = Message.objects.get_or_create(event="disconnect", defaults={"context": "disconnect empty"})[0]
         bot.sendMessage(member.tel, message.context,
-                        reply_markup=InlineKeyboardMarkup(dict_to_button(text_to_keyboard(message.keyboard)),
-                                                          resize_keyboard=True))
+                        reply_markup=InlineKeyboardMarkup(dict_to_button(text_to_keyboard(message.keyboard))))
         return
     link = '<a href="{}">{}</a>'.format("https://t.me/%s?start=%s" % (Bot, member.username),
-                                        member.username + " _ " + member.last_name)
-    text_add = "\n\n🎈کاربر:{}\n\n{}".format(link, CHATS)
+                                        member.username + "\n🎈| " + member.last_name) + " |"
+    text_add = "\n\n🎈پینکرکد:{}\n\n{}".format(link, CHATS())
     if update.message.text:
         update.message.text += text_add
-    elif update.message.caption:
-        if len(update.message.caption + text_add) > 1024:
+    else:
+        if len((update.message.caption or "") + text_add) > 1024:
             bot.sendMessage(member.tel, "تعداد کارکتر ارسالی شما باید کمتر از {} باشد".format(1024 - len(text_add)))
             return
         update.message.caption = (update.message.caption or "") + text_add
-    if member.status == 20:
-        connection = member.connector.filter(status__in=[1, 2]).first()
-        a = ""
-        if connection.status == 2:
-            connection.status = 0
-            member.status = 15
-            member.save()
-            connection.save()
-        send_all(bot, update, users=[connection.connect2.tel])
-    elif member.status == 21:
-        connection = member.link.filter(status=1).first()
-        send_all(bot, update, users=[connection.connect1.tel])
+
+    keyboard = text_to_keyboard(Message.objects.get(event="help").keyboard)
+    bot.sendMessage(member.tel, "پیام ارسال شد",
+                    reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True))
+    send_all(bot, update, users=[member.connect.tel], reply_markup=InlineKeyboardMarkup([[
+        InlineKeyboardButton("ارسال پاسخ",
+                             callback_data="send answer&{}&{}".format(member.username, update.message.message_id))]]),
+             reply_to_message_id=int(member.answer)or None)
+    member.status = 15
+    member.answer = 0
+    member.connect = None
+    member.save()

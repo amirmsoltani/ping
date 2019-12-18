@@ -5,10 +5,10 @@ from .convert import text_to_keyboard
 
 valid_data = {0: "phone_not_valid", 1: "name_not_valid",
               2: "last_name_not_valid", 3: "gender_not_valid",
-              4: "category",
+              4: "category"
               }
 valid_status = {0: "request_phone", 1: "request_name", 2: "request_last_name",
-                3: "request_gender", 4: "request_category",
+                3: "request_gender", 4: "request_category", 6: "request_last_name"
                 }
 
 

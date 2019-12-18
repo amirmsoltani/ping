@@ -1,6 +1,6 @@
-def send_all(bot, update, users=[]):
+def send_all(bot, update, users=[], **kwargs):
     sender = bot.sendMessage
-    keys = {}
+    keys = {**kwargs}
     if update.message.text:
         sender = bot.sendMessage
         keys['text'] = update.message.text

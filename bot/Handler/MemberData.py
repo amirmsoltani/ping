@@ -4,6 +4,7 @@ import logging
 from telegram import ReplyKeyboardMarkup
 from .Admin import send_panel
 from .convert import text_to_keyboard
+from .config import CHATS
 
 logger = logging.getLogger(__name__)
 
@@ -36,16 +37,26 @@ def organizer(bot, update, member, *args):
             not_valid_status(bot, update, member)
         else:
             not_valid_data(bot, update, member)
-    elif member.status == 2:
+    elif member.status in [2, 6]:
         if len(update.message.text) < 30:
-            if Member.objects.filter(last_name=update.message.text).count != 0:
+            if Member.objects.filter(last_name=update.message.text).count() > 0:
                 message = Message.objects.get_or_create(event="user_nic_name_exist",
                                                         defaults={"context": "user_nic_name_exist empty"})[0]
                 bot.sendMessage(member.tel, message.context)
                 return
             member.last_name = update.message.text
-            member.status = 3
-            member.save()
+            if member.status == 6:
+                member.status = 15
+                member.save()
+                message = Message.objects.get(event="help")
+                bot.sendMessage(member.tel, message.context,
+                                reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard),
+                                                                 resize_keyboard=True))
+                return
+            else:
+                member.status = 3
+                member.save()
+
             not_valid_status(bot, update, member)
         else:
             not_valid_data(bot, update, member)
@@ -92,9 +103,30 @@ def change_status(bot, update, member):
         member.status = 19
         member.save()
         return
+    elif message == "تغییر نام مستعار":
+        member.status = 6
+        member.last_name = None
+        member.save()
+        not_valid_status(bot, update, member)
+        return
     elif update.message.text == "پنل" and member.type == 5:
         send_panel(bot, member)
         return
     else:
-        not_valid_data(bot, update, member)
+
+        try:
+            if member.type == 5:
+                mem = Member.objects.get(username=update.message.text)
+                chat = bot.getChat(mem.tel)
+                text = "User Detail\n----------------------\n👩‍🌾 @{}\n {}\n----------------------\n{}".format(
+                    chat.username or mem.phone, mem.username, CHATS())
+                photo = bot.getUserProfilePhotos(mem.tel, limit=1)
+                if len(photo.photos[0]):
+                    bot.sendPhoto(member.tel, caption=text, photo=photo.photos[0][0].file_id)
+                else:
+                    bot.sendMessage(member.tel, text)
+                return
+            not_valid_data(bot, update, member)
+        except Member.DoesNotExist:
+            not_valid_data(bot, update, member)
         return

@@ -14,14 +14,15 @@ def send_pink(bot, update, member):
             InlineKeyboardButton("خذف", callback_data="delete")
         ],
         [
-            InlineKeyboardButton("ارسال پاسخ", callback_data="send answer&%s" % str(member.username)),
+            InlineKeyboardButton("ارسال پاسخ",
+                                 callback_data="send answer&{}&{}".format(member.username, update.message.message_id)),
             InlineKeyboardButton("کاربر",
                                  callback_data="user&%s" % str(update.message.from_user.username or member.phone))
         ]
     ]
     link = '<a href="{}">{}</a>'.format("https://t.me/%s?start=%s" % (Bot, member.username),
-                                        member.username + " _ " + member.last_name)
-    text_add = "\n\n🎈کاربر:{}\n\n{}".format(link, CHATS)
+                                        member.username + "\n🎈| " + member.last_name) + " |"
+    text_add = "\n\n🎈پینکرکد:{}\n\n{}".format(link, CHATS())
     text = ""
     if update.message.text:
         text = update.message.text + text_add
@@ -31,7 +32,8 @@ def send_pink(bot, update, member):
             return
         text = (update.message.caption or "") + text_add
     message = Message.objects.get_or_create(event="send_pink_suc", defaults={"context": "send_pink_suc empty"})[0]
-    bot.sendMessage(member.tel, message.context, reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard),resize_keyboard=True))
+    bot.sendMessage(member.tel, message.context,
+                    reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard), resize_keyboard=True))
     member.status = 15
     member.save()
     if update.message.text:
@@ -62,6 +64,7 @@ def send_pink(bot, update, member):
 
 def send_panel(bot, member):
     rows = [[InlineKeyboardButton(text="دریافت شماره های دیتابیس", callback_data="give&numbers")],
+            [InlineKeyboardButton(text="ارسال برای همه", callback_data="sendto&all")],
             [InlineKeyboardButton(text="ارسال پیام به همه پسران", callback_data="sendto&boys"),
              InlineKeyboardButton(text="ارسال پیام به همه دختران", callback_data="sendto&girls")]]
     categorys = Category.objects.all()
@@ -85,6 +88,8 @@ def send_for_all(bot, update, member):
         users = Member.objects.values("tel").filter(gender=1)
     elif member.send == "girls":
         users = Member.objects.values("tel").filter(gender=0)
+    elif member.send == "all":
+        users = Member.objects.all()
     else:
         cat = Category.objects.get(id=int(member.send))
         users = cat.member_set.values("tel").all()
@@ -93,14 +98,15 @@ def send_for_all(bot, update, member):
     message = \
         Message.objects.get_or_create(event="message_admin_send", defaults={"context": "message_admin_send empty"})[
             0]
-    bot.sendMessage(member.tel, message.context, reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard),resize_keyboard=True))
+    bot.sendMessage(member.tel, message.context,
+                    reply_markup=ReplyKeyboardMarkup(text_to_keyboard(message.keyboard), resize_keyboard=True))
 
 
 def get_number(bot, update, member):
     members = Member.objects.all().values("name", "last_name", "phone")
-    with open("/home2/wirgoola/ping/public/number.txt", 'w') as f:
+    with open("/home2/wirgoola/ping/public/number.csv", 'w') as f:
         for m in members:
-            f.write("{} , {} , {} \n".format(m['name'], m['last_name'], m['phone']))
-    bot.sendDocument(member.tel, caption="لینک دانلود:%s" % "https://wirgoolads.ir/static/number.txt",
-                     document=open("/home2/wirgoola/ping/public/number.txt", 'rb'))
+            f.write("{} ,{},{} \n".format(m['name'], m['last_name'], m['phone']))
+    bot.sendDocument(member.tel, caption="لینک دانلود:%s" % "https://wirgoolads.ir/static/number.csv",
+                     document=open("/home2/wirgoola/ping/public/number.csv", 'rb'))
     return

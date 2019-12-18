@@ -12,6 +12,8 @@ class Member(models.Model):
     status = models.IntegerField(default=0)
     type = models.IntegerField(default=0)
     register = models.DateTimeField(auto_now=True)
+    connect = models.ForeignKey("Member", on_delete=models.CASCADE, null=True, blank=True)
+    answer = models.BigIntegerField(default=0)
     send = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
@@ -23,19 +25,6 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class Connection(models.Model):
-    connect1 = models.ForeignKey(Member, null=True, on_delete=models.SET_NULL, related_name="connector")
-    connect2 = models.ForeignKey(Member, null=True, on_delete=models.SET_NULL, related_name="link")
-    first = models.DateTimeField(auto_now=True)
-    status = models.IntegerField(default=1)
-
-    class Meta:
-        unique_together = ('connect1', 'connect2',)
-
-    def __str__(self):
-        return "%s<->%s" % (self.connect1.name, self.connect2.name)
 
 
 class MemberLog(models.Model):
@@ -54,4 +43,12 @@ class Message(models.Model):
     keyboard = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return str(self.event)
+        return str(self.event) + "->" + str(self.context)[:60]
+
+
+class Chat(models.Model):
+    username = models.CharField(max_length=50)
+    status = models.IntegerField(unique=True, choices=((1, "عضویت"), (2, "انتشار"), (3, "نمایش")), null=True)
+
+    def __str__(self):
+        return self.username
