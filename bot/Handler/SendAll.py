@@ -1,3 +1,6 @@
+from time import sleep
+
+
 def send_all(bot, update, users=[], **kwargs):
     sender = bot.sendMessage
     keys = {**kwargs}
@@ -24,5 +27,12 @@ def send_all(bot, update, users=[], **kwargs):
         sender = bot.sendAudio
         keys['audio'] = update.message.audio.file_id
         keys['caption'] = update.message.caption or ""
+    count = 0
     for user in users:
-        sender(user, parse_mode="HTML", **keys)
+        try:
+            sender(user, parse_mode="HTML", **keys)
+            if count % 20 == 0:
+                sleep(1)
+        except Exception as es:
+            print("sendall error", es.args, es)
+        count += 1

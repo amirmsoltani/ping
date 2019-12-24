@@ -13,7 +13,7 @@ def fallow():
 
 def rel():
     chat = Chat.objects.get(status=2)
-    return Chat.username
+    return chat.username
 
 
-Bot = "soltanikbot"
+Bot = "PinkPanterSbot"

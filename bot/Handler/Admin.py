@@ -89,7 +89,7 @@ def send_for_all(bot, update, member):
     elif member.send == "girls":
         users = Member.objects.values("tel").filter(gender=0)
     elif member.send == "all":
-        users = Member.objects.all()
+        users = Member.objects.values('tel').all()
     else:
         cat = Category.objects.get(id=int(member.send))
         users = cat.member_set.values("tel").all()

@@ -51,4 +51,4 @@ class Chat(models.Model):
     status = models.IntegerField(unique=True, choices=((1, "عضویت"), (2, "انتشار"), (3, "نمایش")), null=True)
 
     def __str__(self):
-        return self.username
+        return str(self.username)
