@@ -134,7 +134,7 @@ DJANGO_TELEGRAMBOT = {
     #'WEBHOOK_PREFIX': '/telegrambot1',
     'BOTS': [
         {
-            'TOKEN': '450696602:AAFt3o_3TI_RwVsGpExqyDQMcPYEeY4kc6s',
+            'TOKEN': '',
         },
     ]
 
